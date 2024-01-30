@@ -6,13 +6,22 @@ export const inject = ["database"];
 export interface Config {}
 
 export const Config: Schema<Config> = Schema.object({});
+const AtRegex = /<at id="(.+)" name="(.+)"\/>/;
 
 export function apply(ctx: Context) {
   // write your plugin here
   ctx
     .command("register")
     .action(async (argv) => {
+      const source = argv.source;
+      const match = source.match(AtRegex);
       const session = argv.session;
+
+      console.log(source);
+      console.log(match);
+
+      if (!match || match[1] !== session.bot.userId) return ``;
+
       const auth = await ctx.database.get("user", 0, ["authority"]);
 
       if (auth[0].authority >= 2) {
